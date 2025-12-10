@@ -12,6 +12,7 @@ A modern, fluent HTTP client library for Go with built-in retry logic, intercept
 - **Retry Logic**: Configurable automatic retry with exponential backoff
 - **Interceptors**: Middleware pattern for request modification (auth, logging, rate limiting, etc.)
 - **JSON Support**: Built-in JSON marshaling/unmarshaling
+- **XML Support**: Built-in XML marshaling/unmarshaling
 - **Context Support**: Full context.Context integration
 - **Flexible Configuration**: Options pattern for client and request configuration
 - **Thread-Safe**: Safe for concurrent use
@@ -62,6 +63,32 @@ if err != nil {
 // GET JSON
 var users []User
 err = client.GetJSON("/users", &users)
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+### XML Request/Response
+
+```go
+client := httpc.NewClient(httpc.WithBaseURL("https://api.example.com"))
+
+type Config struct {
+    Environment string `xml:"environment"`
+    Port        int    `xml:"port"`
+}
+
+// POST XML
+config := Config{Environment: "production", Port: 8080}
+var result Config
+err := client.PostXML("/config", config, &result)
+if err != nil {
+    log.Fatal(err)
+}
+
+// GET XML
+var settings Config
+err = client.GetXML("/config", &settings)
 if err != nil {
     log.Fatal(err)
 }
@@ -158,6 +185,14 @@ err := client.GetJSONWithContext(ctx, "/users", &users)
 user := User{Name: "Jane"}
 var created User
 err = client.PostJSONWithContext(ctx, "/users", user, &created)
+
+// XML methods also support context
+var config Config
+err = client.GetXMLWithContext(ctx, "/config", &config)
+
+settings := Config{Environment: "staging", Port: 9090}
+var settingsResult Config
+err = client.PostXMLWithContext(ctx, "/config", settings, &settingsResult)
 
 // Or use WithContext as a RequestOption
 resp, err := client.Get("/users",
@@ -327,6 +362,26 @@ if err != nil {
 
 var user User
 err = resp.JSON(&user)
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+### As XML
+
+```go
+type Config struct {
+    Environment string `xml:"environment"`
+    Port        int    `xml:"port"`
+}
+
+resp, err := client.Get("/config")
+if err != nil {
+    log.Fatal(err)
+}
+
+var config Config
+err = resp.XML(&config)
 if err != nil {
     log.Fatal(err)
 }

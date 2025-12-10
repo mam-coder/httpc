@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"io"
 	"net/http"
@@ -106,6 +107,23 @@ func (r *Response) JSON(v interface{}) error {
 		return err
 	}
 	return json.Unmarshal(body, v)
+}
+
+// XML unmarshals the response body into the provided value.
+// The body is read and cached on the first call.
+//
+// Example:
+//
+//	type User struct {
+//		ID   int    `xml:"id"`
+//		Name string `xml:"name"`
+//	}
+func (r *Response) XML(v interface{}) error {
+	body, err := r.Bytes()
+	if err != nil {
+		return err
+	}
+	return xml.Unmarshal(body, v)
 }
 
 // SetCSVSeparator sets the separator (delimiter) for CSV parsing.
