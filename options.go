@@ -11,12 +11,14 @@ import (
 // Options are passed to NewClient to customize client behavior such as
 // setting timeouts, base URLs, headers, retry logic, and interceptors.
 //
-// Example:
+// Example with multiple options:
 //
 //	client := httpc.NewClient(
-//	    httpc.WithBaseURL("https://api.example.com"),
-//	    httpc.WithTimeout(30*time.Second),
-//	    httpc.WithHeader("User-Agent", "MyApp/1.0"),
+//		httpc.WithBaseURL("https://api.example.com"),
+//		httpc.WithTimeout(30*time.Second),
+//		httpc.WithHeader("User-Agent", "MyApp/1.0"),
+//		httpc.WithAuthorization("your-api-token"),
+//		httpc.WithDebug(),
 //	)
 type Option func(*Client)
 
@@ -182,9 +184,16 @@ func WithRequestId(headerName string) Option {
 // Example:
 //
 //	client := httpc.NewClient(httpc.WithBlockedList([]string{
-//	    "malicious-site.com",
-//	    "blocked-domain.com",
+//		"malicious-site.com",
+//		"blocked-domain.com",
 //	}))
+//
+//	// Attempting to access a blocked domain will return an error
+//	resp, err := client.Get("https://malicious-site.com/api/data")
+//	if err != nil {
+//		fmt.Println(err)
+//		// Output: request to blocked domain: malicious-site.com
+//	}
 func WithBlockedList(blockedList []string) Option {
 	return WithInterceptor(func(rt http.RoundTripper) http.RoundTripper {
 		return &blockListTransport{
@@ -197,12 +206,39 @@ func WithBlockedList(blockedList []string) Option {
 // WithRetry configures automatic retry logic with exponential backoff.
 // Use RetryConfig to specify max retries, backoff duration, and retry conditions.
 //
-// Example:
+// Example with default retry condition:
 //
 //	config := httpc.RetryConfig{
-//	    MaxRetries: 3,
-//	    Backoff:    time.Second,
-//	    RetryIf:    httpc.DefaultRetryCondition,  // or custom function
+//		MaxRetries: 3,
+//		Backoff:    time.Second,
+//		RetryIf:    httpc.DefaultRetryCondition,
+//	}
+//	client := httpc.NewClient(httpc.WithRetry(config))
+//
+// Example with custom retry condition:
+//
+//	customRetryCondition := func(resp *http.Response, err error) bool {
+//		// Retry on network errors
+//		if err != nil {
+//			return true
+//		}
+//		// Retry on specific status codes
+//		if resp.StatusCode == 429 || resp.StatusCode == 503 {
+//			return true
+//		}
+//		// Retry on 500 errors only if response contains specific message
+//		if resp.StatusCode == 500 {
+//			body, _ := io.ReadAll(resp.Body)
+//			resp.Body = io.NopCloser(bytes.NewReader(body))
+//			return strings.Contains(string(body), "temporary")
+//		}
+//		return false
+//	}
+//
+//	config := httpc.RetryConfig{
+//		MaxRetries: 5,
+//		Backoff:    2 * time.Second,
+//		RetryIf:    customRetryCondition,
 //	}
 //	client := httpc.NewClient(httpc.WithRetry(config))
 func WithRetry(config RetryConfig) Option {
@@ -247,12 +283,51 @@ func WithDebug() Option {
 // requests before they are sent or return errors to prevent execution.
 // Multiple interceptors can be added by calling this option multiple times.
 //
-// Example:
+// Example of adding custom headers to all requests:
 //
-//	client := httpc.NewClient(
-//	    httpc.WithInterceptor(httpc.LoggingInterceptor()),
-//	    httpc.WithInterceptor(httpc.AuthInterceptor("token")),
-//	)
+//	customHeaderInterceptor := func(rt http.RoundTripper) http.RoundTripper {
+//		return &customHeaderTransport{transport: rt}
+//	}
+//
+//	type customHeaderTransport struct {
+//		transport http.RoundTripper
+//	}
+//
+//	func (t *customHeaderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+//		req.Header.Set("X-Custom-Header", "MyValue")
+//		req.Header.Set("X-Request-Time", time.Now().Format(time.RFC3339))
+//		return t.transport.RoundTrip(req)
+//	}
+//
+//	client := httpc.NewClient(httpc.WithInterceptor(customHeaderInterceptor))
+//
+// Example of request/response timing interceptor:
+//
+//	timingInterceptor := func(rt http.RoundTripper) http.RoundTripper {
+//		return roundTripFunc(func(req *http.Request) (*http.Response, error) {
+//			start := time.Now()
+//			resp, err := rt.RoundTrip(req)
+//			duration := time.Since(start)
+//			log.Printf("%s %s took %v", req.Method, req.URL, duration)
+//			return resp, err
+//		})
+//	}
+//
+//	client := httpc.NewClient(httpc.WithInterceptor(timingInterceptor))
+//
+// Example of conditional request modifier:
+//
+//	conditionalInterceptor := func(rt http.RoundTripper) http.RoundTripper {
+//		return roundTripFunc(func(req *http.Request) (*http.Response, error) {
+//			// Add API version header only for specific paths
+//			if strings.HasPrefix(req.URL.Path, "/api/v2") {
+//				req.Header.Set("X-API-Version", "2.0")
+//			}
+//			return rt.RoundTrip(req)
+//		})
+//	}
+//
+//	client := httpc.NewClient(httpc.WithInterceptor(conditionalInterceptor))
 func WithInterceptor(interceptor Interceptor) Option {
 	return func(c *Client) {
 		c.transport = interceptor(c.transport)

@@ -14,10 +14,10 @@ import (
 //
 //	resp, err := client.Get("/api/users")
 //	if err != nil {
-//	    var httpErr *httpc.Error
-//	    if errors.As(err, &httpErr) {
-//	        fmt.Printf("Status: %d, Message: %s\n", httpErr.StatusCode, httpErr.Message)
-//	    }
+//		var httpErr *httpc.Error
+//		if errors.As(err, &httpErr) {
+//			fmt.Printf("Status: %d, Message: %s\n", httpErr.StatusCode, httpErr.Message)
+//		}
 //	}
 type Error struct {
 	// StatusCode is the HTTP status code returned by the server
@@ -33,7 +33,7 @@ type Error struct {
 // Error implements the error interface and returns a formatted error message
 // containing the status code and message.
 func (e *Error) Error() string {
-	return fmt.Sprintf("Request faild with status 	%d: %s", e.StatusCode, e.Message)
+	return fmt.Sprintf("Request failed with status %d: %s", e.StatusCode, e.Message)
 }
 
 // IsTimeout checks if the error is a timeout error.
@@ -44,7 +44,7 @@ func (e *Error) Error() string {
 //
 //	resp, err := client.Get("/api/slow-endpoint")
 //	if httpc.IsTimeout(err) {
-//	    log.Println("Request timed out")
+//		log.Println("Request timed out")
 //	}
 func IsTimeout(err error) bool {
 	if err == nil {

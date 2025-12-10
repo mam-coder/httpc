@@ -1,5 +1,3 @@
-// Package httpc provides a modern HTTP client with fluent API and advanced features.
-// This file contains the core Client type and initialization functions.
 package httpc
 
 import (
@@ -25,12 +23,31 @@ type Client struct {
 // Options can configure the base URL, timeout, headers, retry logic,
 // interceptors, and other client behavior.
 //
+// Available options:
+//
+//   - WithBaseURL: Set base URL for all requests
+//   - WithTimeout: Set request timeout duration
+//   - WithHeader: Add a single header to all requests
+//   - WithHeaders: Add multiple headers to all requests
+//   - WithUserAgent: Set User-Agent header
+//   - WithContentType: Set Content-Type header
+//   - WithAccept: Set Accept header
+//   - WithAuthorization: Add Bearer token authentication
+//   - WithBaseAuth: Add HTTP Basic authentication
+//   - WithApiKey: Add API key authentication
+//   - WithRequestId: Add unique request ID header
+//   - WithRetry: Configure automatic retry logic
+//   - WithLogger: Add request/response logging
+//   - WithDebug: Enable debug mode
+//   - WithBlockedList: Block requests to specific domains
+//   - WithInterceptor: Add custom request/response interceptor
+//
 // Example:
 //
 //	client := httpc.NewClient(
-//	    httpc.WithBaseURL("https://api.example.com"),
-//	    httpc.WithTimeout(30*time.Second),
-//	    httpc.WithHeader("User-Agent", "MyApp/1.0"),
+//		httpc.WithBaseURL("https://api.example.com"),
+//		httpc.WithTimeout(30*time.Second),
+//		httpc.WithHeader("User-Agent", "MyApp/1.0"),
 //	)
 func NewClient(opts ...Option) *Client {
 	client := &Client{

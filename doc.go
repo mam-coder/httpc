@@ -20,7 +20,7 @@
 //	client := httpc.NewClient()
 //	resp, err := client.Get("https://api.example.com/users")
 //	if err != nil {
-//	    log.Fatal(err)
+//		log.Fatal(err)
 //	}
 //	body, _ := resp.String()
 //	fmt.Println(body)
@@ -34,10 +34,10 @@
 //	retryConfig.Backoff = time.Second
 //
 //	client := httpc.NewClient(
-//	    httpc.WithBaseURL("https://api.example.com"),
-//	    httpc.WithTimeout(30*time.Second),
-//	    httpc.WithHeader("User-Agent", "MyApp/1.0"),
-//	    httpc.WithRetry(*retryConfig),
+//		httpc.WithBaseURL("https://api.example.com"),
+//		httpc.WithTimeout(30*time.Second),
+//		httpc.WithHeader("User-Agent", "MyApp/1.0"),
+//		httpc.WithRetry(*retryConfig),
 //	)
 //
 // # JSON Requests
@@ -45,8 +45,8 @@
 // Send and receive JSON easily:
 //
 //	type User struct {
-//	    Name  string `json:"name"`
-//	    Email string `json:"email"`
+//		Name  string `json:"name"`
+//		Email string `json:"email"`
 //	}
 //
 //	user := User{Name: "John", Email: "john@example.com"}
@@ -58,25 +58,26 @@
 // Use the fluent request builder for complex requests:
 //
 //	resp, err := client.NewRequest().
-//	    Method("POST").
-//	    URL("/api/users").
-//	    Header("Authorization", "Bearer token").
-//	    Query("include", "profile").
-//	    JSON(userData).
-//	    Timeout(10*time.Second).
-//	    Do()
+//		Method("POST").
+//		URL("/api/users").
+//		Header("Authorization", "Bearer token").
+//		Query("include", "profile").
+//		JSON(userData).
+//		Timeout(10*time.Second).
+//		Do()
 //
 // # Interceptors
 //
 // Add interceptors for cross-cutting concerns:
 //
 //	client := httpc.NewClient(
-//	    httpc.WithDebug(),
-//	    httpc.WithAuthorization("your-token"),
-//	    httpc.WithLogger(log.Default()),
+//		httpc.WithDebug(),
+//		httpc.WithAuthorization("your-token"),
+//		httpc.WithLogger(log.Default()),
 //	)
 //
 // Available built-in options:
+//
 //   - WithAuthorization(token): Bearer token authentication
 //   - WithBaseAuth(user, pass): HTTP Basic authentication
 //   - WithApiKey(header, key): API key authentication
@@ -90,7 +91,7 @@
 // Custom interceptors wrap the underlying http.RoundTripper:
 //
 //	customInterceptor := func(rt http.RoundTripper) http.RoundTripper {
-//	    return &customTransport{transport: rt}
+//		return &customTransport{transport: rt}
 //	}
 //	client := httpc.NewClient(httpc.WithInterceptor(customInterceptor))
 //
@@ -103,10 +104,11 @@
 //	retryConfig.Backoff = time.Second
 //
 //	client := httpc.NewClient(
-//	    httpc.WithRetry(*retryConfig),
+//		httpc.WithRetry(*retryConfig),
 //	)
 //
 // By default, requests are retried on:
+//
 //   - Network errors and timeouts
 //   - 5xx server errors
 //   - 429 (rate limit) responses
@@ -117,14 +119,14 @@
 //
 //	resp, err := client.Get("/api/users")
 //	if err != nil {
-//	    if httpc.IsTimeout(err) {
-//	        log.Println("Request timed out")
-//	    }
-//	    log.Fatal(err)
+//		if httpc.IsTimeout(err) {
+//			log.Println("Request timed out")
+//		}
+//		log.Fatal(err)
 //	}
 //
 //	if resp.StatusCode >= 400 {
-//	    log.Printf("HTTP error: %d", resp.StatusCode)
+//		log.Printf("HTTP error: %d", resp.StatusCode)
 //	}
 //
 // # Context Support
@@ -148,17 +150,17 @@
 // Or use the request builder:
 //
 //	resp, err := client.NewRequest().
-//	    Method("GET").
-//	    URL("/api/users").
-//	    Context(ctx).
-//	    Timeout(5*time.Second).  // Timeout wraps the context
-//	    Do()
+//		Method("GET").
+//		URL("/api/users").
+//		Context(ctx).
+//		Timeout(5*time.Second).  // Timeout wraps the context
+//		Do()
 //
 // Or pass context as a RequestOption:
 //
 //	resp, err := client.Get("/api/users",
-//	    httpc.WithContext(ctx),
-//	    httpc.WithQuery("page", "1"),
+//		httpc.WithContext(ctx),
+//		httpc.WithQuery("page", "1"),
 //	)
 //
 // # Content Types
@@ -181,13 +183,13 @@
 //	client := httpc.NewClient()
 //
 //	go func() {
-//	    resp, _ := client.Get("/api/endpoint1")
-//	    // ...
+//		resp, _ := client.Get("/api/endpoint1")
+//		// ...
 //	}()
 //
 //	go func() {
-//	    resp, _ := client.Get("/api/endpoint2")
-//	    // ...
+//		resp, _ := client.Get("/api/endpoint2")
+//		// ...
 //	}()
 //
 // # Best Practices

@@ -13,17 +13,17 @@ import (
 func main() {
 	client := httpc.NewClient(
 		httpc.WithBaseURL(
-			"http://api.example.com"),
-		httpc.WithHeader("Accept", httpc.ContentTypeJSON),
-		httpc.WithHeader("Accept-Encoding", "gzip, deflate, br"),
-		httpc.WithHeader("Content-Type", "application/json; charsets=utf-8"),
+			"https://bnm.md"),
+		//httpc.WithHeader("Accept", httpc.ContentTypeApplicationCSV),x
+		//httpc.WithHeader("Accept-Encoding", "gzip, deflate, br"),
+		//httpc.WithHeader("Content-Type", "application/json; charsets=utf-8"),
 		httpc.WithUserAgent("MyApp/v1.0.5"),
-		//httpc.WithBlockedList([]string{"api.bookair.zeit.test"}),
+		//httpc.WithBlockedList([]string{"api.malware.com"}),
 		httpc.WithDebug(),
-		httpc.WithLogger(log.Default()),
+		//httpc.WithLogger(log.Default()),
 	)
 
-	resp, err := client.Get("/v1/status/health")
+	resp, err := client.Get("/ro/export-official-exchange-rates?date=08.12.2025")
 	// Check what encoding was used
 
 	if err != nil {

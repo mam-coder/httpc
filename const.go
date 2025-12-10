@@ -23,6 +23,9 @@ const (
 	// ContentTypeCSV represents CSV content (text/csv)
 	ContentTypeCSV = "text/csv"
 
+	// ContentTypeApplicationCSV represents CSV content (application/csv)
+	ContentTypeApplicationCSV = "application/csv"
+
 	// ContentTypeJavaScript represents JavaScript content (application/javascript)
 	ContentTypeJavaScript = "application/javascript"
 
